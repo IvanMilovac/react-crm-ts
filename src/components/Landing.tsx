@@ -1,15 +1,16 @@
 import { AppBar, Container, Toolbar, Button, CardMedia } from "@mui/material";
-import { Route, Routes, useNavigate } from "react-router-dom";
-import Home from "./Home";
-import { Background, LandingCard } from "./Custom.styles";
-import Login from "./Login";
-import NoMatch from "./NoMatch";
+import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
+import Banner from "./layouts/Banner";
+import { Background, LandingCard } from "../Custom.styles";
+import Login from "./layouts/Login";
+import NoMatch from "./layouts/NoMatch";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   return (
     <Background>
-      <LandingCard>
+      <LandingCard sx={{ display: "flex", flexDirection: "column" }}>
         <AppBar
           position="static"
           sx={{ background: "white", padding: ".5rem 1rem" }}
@@ -27,19 +28,21 @@ const Landing = () => {
                 alt="CRM logo"
                 onClick={() => navigate("/")}
               />
-              <Button
-                variant="custom"
-                color="primary"
-                href="/login"
-                sx={{ marginBlock: ".5rem" }}
-              >
-                Log in
-              </Button>
+              {location.pathname !== "/login" && (
+                <Button
+                  variant="custom"
+                  color="primary"
+                  href="/login"
+                  sx={{ marginBlock: ".5rem" }}
+                >
+                  Log in
+                </Button>
+              )}
             </Toolbar>
           </Container>
         </AppBar>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Banner />} />
           <Route path="/login" element={<Login />} />
           <Route path="*" element={<NoMatch />} />
         </Routes>

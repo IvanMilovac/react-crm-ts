@@ -1,55 +1,56 @@
-import { Button, Grid, Typography } from "@mui/material";
-import LandingImg from "../assets/landing-img.svg";
-import { ImageCustom } from "./Custom.styles";
+import { Box } from "@mui/material";
+import MiniDrawer from "./layouts/Drawer";
+import Dashboard from "./layouts/Dashboard";
+import Contact from "./layouts/Contact";
+import Tasks from "./layouts/Tasks";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import ProtectedRoutes from "./layouts/ProtectedRoutes";
+import { useEffect } from "react";
+
+const paths = ["/dashboard", "/tasks", "/contacts", "/login"];
 
 const Home = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!paths.includes(location.pathname)) {
+      navigate("/dashboard");
+    }
+  }, [location.pathname, navigate]);
+
   return (
-    <Grid
-      container
-      sx={{
-        width: "100%",
-        padding: "1rem",
-        margin: "0",
-      }}
-    >
-      <Grid
-        item
-        xs={12}
-        md={7}
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
-      >
-        <ImageCustom src={LandingImg} alt="CRM illustration" />
-      </Grid>
-      <Grid
-        item
-        xs={12}
-        md={5}
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-          gap: "0.5rem",
-          textAlign: "center",
-        }}
-      >
-        <Typography sx={{ paddingBlock: "1rem", fontSize: "1.5rem" }}>
-          Your CRM #1
-        </Typography>
-        <Typography sx={{ paddingBlock: "1rem" }}>
-          Meet the small business CRM that just works. Get started in under 30
-          minutes and build customer relationships for life.
-        </Typography>
-        <Button
-          variant="custom"
-          color="primary"
-          href="/login"
-          sx={{ margin: "1rem" }}
-        >
-          Log in
-        </Button>
-      </Grid>
-    </Grid>
+    <Box>
+      <MiniDrawer>
+        <Routes>
+          <Route
+            path={paths[0]}
+            element={
+              <ProtectedRoutes>
+                <Dashboard />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path={paths[1]}
+            element={
+              <ProtectedRoutes>
+                <Tasks />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path={paths[2]}
+            element={
+              <ProtectedRoutes>
+                <Contact />
+              </ProtectedRoutes>
+            }
+          />
+          <Route path="*" element={<Dashboard />} />
+        </Routes>
+      </MiniDrawer>
+    </Box>
   );
 };
 

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import bgLogin from "../assets/bg-login.jpg";
+import bgLogin from "./assets/bg-login.jpg";
 import Card from "@mui/material/Card";
 
 export const Background = styled.div`
