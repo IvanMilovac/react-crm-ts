@@ -1,5 +1,6 @@
 import { Box, MenuItem, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { TasksContext } from "../../contexts/TasksContext";
 import Task from "./Task";
 import { fakeTasks } from "../../fakeData";
 
@@ -19,6 +20,7 @@ const options = [
 ];
 
 const TasksDashboard = () => {
+  const { state } = useContext(TasksContext);
   const [status, setStatus] = useState("all");
   const [filteredTasks, setFilteredTasks] = useState([] as ITask[]);
 
@@ -27,10 +29,7 @@ const TasksDashboard = () => {
   };
 
   useEffect(() => {
-    const tasksStorage = localStorage.getItem("tasks");
-    if (!!tasksStorage) {
-      setFilteredTasks(JSON.parse(tasksStorage));
-    }
+    setFilteredTasks(state);
   }, []);
 
   useEffect(() => {
@@ -57,10 +56,10 @@ const TasksDashboard = () => {
         }}
       >
         {
-          filteredTasks.filter((task) => task.status.value === "completed")
+          state.filter((task: ITask) => task.status.value === "completed")
             .length
         }{" "}
-        task completed out of {filteredTasks.length}
+        task completed out of {state.length}
       </Typography>
       <TextField
         id="outlined-select-currency"

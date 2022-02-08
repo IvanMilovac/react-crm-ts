@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { theme } from "../../customTheme";
-
 import TasksDashboard from "./TasksDashboard";
+import { TasksContextProvider } from "../../contexts/TasksContext";
 
 const gridStyle = {
   display: "grid",
@@ -19,13 +19,15 @@ const gridStyle = {
 
 const Dashboard = () => {
   return (
-    <Box sx={gridStyle}>
-      <Box sx={{ gridArea: "elem1" }}>
-        <TasksDashboard />
+    <TasksContextProvider>
+      <Box sx={gridStyle}>
+        <Box sx={{ gridArea: "elem1" }}>
+          <TasksDashboard />
+        </Box>
+        <Box sx={{ gridArea: "elem2", bgcolor: "red" }}>__</Box>
+        <Box sx={{ gridArea: "elem3", bgcolor: "green" }}>__</Box>
       </Box>
-      <Box sx={{ gridArea: "elem2", bgcolor: "red" }}>2</Box>
-      <Box sx={{ gridArea: "elem3", bgcolor: "green" }}>3</Box>
-    </Box>
+    </TasksContextProvider>
   );
 };
 

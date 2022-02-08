@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext, useCallback } from "react";
 import BasicTable from "../elements/BasicTable";
-import { fakeTasks } from "../../fakeData";
+import { TasksContext } from "../../contexts/TasksContext";
 import ModalComponent from "../elements/Modal";
 import { Box, Button, MenuItem, TextField, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -44,47 +44,72 @@ const optionsType = [
 ];
 
 const Tasks = () => {
+  const { state, dispatch } = useContext(TasksContext);
   const [openModal, setOpenModal] = useState(false);
-  const [tasks, setTasks] = useState(fakeTasks as ITask[]);
-  const [state, dispatch] = useTasks(initialState);
+  const [tasks, setTasks] = useState(state as ITask[]);
+  const [taskState, taskDispatch] = useTasks(initialState);
+
+  const memoizedDispatch = useCallback((args) => dispatch(args), [dispatch]);
+  const memoizedTaskDispatch = useCallback(
+    (args) => taskDispatch(args),
+    [taskDispatch]
+  );
 
   useEffect(() => {
-    const tasksStorage = localStorage.getItem("tasks");
-    if (!!tasksStorage) {
-      setTasks(JSON.parse(tasksStorage));
-    }
-  }, []);
-  console.log(state);
+    const storageData = localStorage.getItem("tasks");
+    !!storageData ? setTasks(JSON.parse(storageData)) : setTasks(state);
+  }, [state]);
+
+  useEffect(() => {
+    memoizedTaskDispatch({ type: "RESET_FORM", payload: initialState });
+  }, [memoizedTaskDispatch, openModal]);
+
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+    memoizedDispatch({ type: "ADD_TASKS", payload: tasks });
+  }, [tasks, memoizedDispatch]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
-    dispatch({
+    let value;
+    switch (e.target.name) {
+      case "due":
+        value = {
+          value: e.target.value,
+          label: dateToForm(e.target.value),
+        };
+        break;
+      case "type":
+        value = {
+          value: e.target.value,
+          label: optionsType.filter((opt) => opt.value === e.target.value)[0]
+            ?.label,
+        };
+        break;
+      case "status":
+        value = {
+          value: e.target.value,
+          label: optionsStatus.filter((opt) => opt.value === e.target.value)[0]
+            ?.label,
+        };
+        break;
+      default:
+        value = e.target.value;
+    }
+    taskDispatch({
       type: "HANDLE_CHANGE",
       payload: {
         name: e.target.name,
-        value:
-          e.target.name === "due" ||
-          e.target.name === "status" ||
-          e.target.name === "type"
-            ? {
-                value: e.target.value,
-                label:
-                  e.target.name === "due"
-                    ? dateToForm(e.target.value)
-                    : e.target.value,
-              }
-            : e.target.value,
+        value: value,
       },
     });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setTasks([...tasks, state]);
+    setTasks([...tasks, taskState]);
+    taskDispatch({ type: "RESET_FORM", payload: initialState });
     setOpenModal(false);
   };
 
@@ -108,7 +133,7 @@ const Tasks = () => {
               name="title"
               fullWidth
               required
-              value={state.title}
+              value={taskState.title}
               onChange={handleChange}
               sx={{ marginBottom: ".75rem" }}
             />
@@ -127,7 +152,7 @@ const Tasks = () => {
                 color: "gray",
               }}
               onChange={handleChange}
-              value={state.due.value}
+              value={taskState.due.value}
             />
             <TextField
               id="outlined-basic"
@@ -136,7 +161,7 @@ const Tasks = () => {
               name="responsible"
               required
               fullWidth
-              value={state.responsible}
+              value={taskState.responsible}
               onChange={handleChange}
               sx={{ marginBottom: ".75rem" }}
             />
@@ -147,7 +172,7 @@ const Tasks = () => {
               name="type"
               required
               fullWidth
-              value={state.type.label}
+              value={taskState.type.value}
               onChange={handleChange}
               sx={{ marginBottom: ".75rem" }}
             >
@@ -164,7 +189,7 @@ const Tasks = () => {
               name="status"
               fullWidth
               required
-              value={state.status.label}
+              value={taskState.status.value}
               onChange={handleChange}
               sx={{ marginBottom: ".75rem" }}
             >
